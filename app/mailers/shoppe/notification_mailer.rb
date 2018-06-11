@@ -4,7 +4,7 @@ module Shoppe
     def order_received(order)
       @order = order
 
-      staff = get_staff_list
+      staff = get_staff_list(order)
 
       mail from: Shoppe.settings.outbound_email_address, to: staff, subject: 'New Order Received' unless staff.empty?
     end
@@ -12,13 +12,13 @@ module Shoppe
     def order_returned(order)
       @order = order
 
-      staff = get_staff_list
+      staff = get_staff_list(order)
 
       mail from: Shoppe.settings.outbound_email_address, to: staff, subject: 'Order Returned' unless staff.empty?
     end
 
     private
-      def get_staff_list
+      def get_staff_list(order)
         staff = []
         Shoppe::Retailer.joins(:countries).where(shoppe_countries: {id: order.delivery_country_id}).each do |retailer|
           staff << retailer.users.map(&:email_address)
